@@ -1,26 +1,57 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {Component} from 'react';
 import './App.css';
+import SearchBar from './Components/Searchbar';
+import apis from './Components/apis';
+import ListVideos from './Components/ListVideos';
+import VideoDetail from './Components/VideoDetail';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+
+  state = {
+    videos: [],
+    SelectedVideo: null
+  }
+
+  onSearchSubmit = async (searchvalue) => {
+   const res = await apis.get('/search', {
+      params: {
+        q: searchvalue
+      }
+    });
+
+    this.setState({
+      videos: res.data.items,
+      SelectedVideo: res.data.items[0]
+    })
+  };
+
+  onVideoSelect =(video)=> {
+    this.setState({SelectedVideo: video})
+  }
+
+  render() {
+    console.log(this.state.videos)
+    return (
+      <div className="App App-header">
+        <div className="ui container">
+        <SearchBar onFormSubmit={this.onSearchSubmit}/>
+        <div className="ui grid">
+          <div className="ui row">
+            <div className="eleven wide column">
+            <VideoDetail video={this.state.SelectedVideo} />
+            </div>
+            <div className="five wide column">
+            <ListVideos videos={this.state.videos} onVideoSelect={this.onVideoSelect}/>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    )
+  }  
 }
+  
 
-export default App;
+export default App
+    
+
